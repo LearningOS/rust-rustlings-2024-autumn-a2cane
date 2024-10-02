@@ -2,19 +2,18 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Node<T> {
     val: T,
     next: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Node<T> {
+impl<T: Clone> Node<T> {
     fn new(t: T) -> Node<T> {
         Node {
             val: t,
@@ -29,13 +28,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: Clone + PartialOrd> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: Clone + PartialOrd> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -56,11 +55,11 @@ impl<T> LinkedList<T> {
         self.length += 1;
     }
 
-    pub fn get(&mut self, index: i32) -> Option<&T> {
+    pub fn get(&self, index: i32) -> Option<&T> {
         self.get_ith_node(self.start, index)
     }
 
-    fn get_ith_node(&mut self, node: Option<NonNull<Node<T>>>, index: i32) -> Option<&T> {
+    fn get_ith_node(&self, node: Option<NonNull<Node<T>>>, index: i32) -> Option<&T> {
         match node {
             None => None,
             Some(next_ptr) => match index {
@@ -71,12 +70,34 @@ impl<T> LinkedList<T> {
     }
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
+		let mut ret = Self {
             length: 0,
             start: None,
             end: None,
+        };
+        
+        let mut i = 0;
+        let mut j = 0;
+        while i < list_a.length && j < list_b.length {
+            let a = list_a.get(i as i32).unwrap();
+            let b = list_b.get(j as i32).unwrap();
+            if a < b {
+                ret.add(a.clone());
+                i += 1;
+            } else {
+                ret.add(b.clone());
+                j += 1;
+            }
         }
+        while i < list_a.length {
+            ret.add(list_a.get(i as i32).unwrap().clone());
+            i += 1;
+        }
+        while j < list_b.length {
+            ret.add(list_b.get(j as i32).unwrap().clone());
+            j += 1;
+        }
+        ret
 	}
 }
 
